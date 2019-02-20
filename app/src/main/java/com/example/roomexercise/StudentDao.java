@@ -6,8 +6,10 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.TypeConverters;
 import android.arch.persistence.room.Update;
 
+import java.util.Date;
 import java.util.List;
 
 @Dao
@@ -34,8 +36,13 @@ public interface StudentDao {
     @Query("UPDATE student SET grade = :newGrade WHERE id IN (:idList)")
     int updateGradeByIdList(List<Long> idList, int newGrade);
 
-    @Query("DELETE * FROM student WHERE id IN (:idList)")
-    int deleteByIdList(List<Long> idList);
+    @Query("SELECT student.name, student.grade, department.name AS department_name " +
+              "FROM student, department " +
+              "WHERE department.id == student.department_id")
+    public List<StudentDepartment> getStudentWithDepartment();
+
+    @Query("SELECT * FROM student WHERE birthday = :birthdayDate")
+    Student getByDate(@TypeConverters({DateConverter.class}) Date birthdayDate);
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
